@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מערכת ניווט לעיוורים - אפליקציית עזר</title>
+    
+    <!-- טעינת העיצוב של מפות Leaflet -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            padding: 20px;
+            text-align: center;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+        }
+        h2 { color: #2c3e50; }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 18px;
+            border-radius: 8px;
+            margin: 20px 0;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 300px;
+        }
+        button:active { background-color: #2980b9; }
+        .data-box {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            text-align: right;
+            margin-bottom: 20px;
+        }
+        .data-row { margin-bottom: 10px; font-size: 16px; }
+        .label { font-weight: bold; color: #7f8c8d; }
+        .value { color: #2c3e50; font-weight: 500; }
+        
+        /* הגדרת גובה חובה למפה */
+        #map {
+            height: 350px; 
+            width: 100%;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            display: none; /* מוסתר עד קבלת מיקום ראשוני */
+        }
+    </style>
+</head>
+<body>
+
+    <h2>ממשק ניווט - משקפיים חכמים</h2>
+    <p>האפליקציה אוספת נתוני מיקום, מציגה את רדיוס הדיוק ומשדרת נתונים ל-ESP32.</p>
+
+    <button id="trackBtn">התחל מעקב מיקום</button>
+
+    <div class="data-box">
+        <div class="data-row">
+            <span class="label">סטטוס:</span> 
+            <span class="value" id="status">ממתין להפעלה...</span>
+        </div>
+        <div class="data-row">
+            <span class="label">קואורדינטות (GPS):</span> 
+            <span class="value" id="coords">--</span>
+        </div>
+        <div class="data-row">
+            <span class="label">רמת דיוק:</span> 
+            <span class="value" id="accuracy">--</span>
+        </div>
+        <div class="data-row">
+            <span class="label">כתובת משוערת:</span> 
+            <span class="value" id="address">--</span>
+        </div>
+    </div>
+
+    <!-- חלונית המפה -->
+    <div id="map"></div>
+
+    <!-- טעינת ספריית הפונקציות של Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <script>
+        const trackBtn = document.getElementById('trackBtn');
+        const statusEl = document.getElementById('status');
+        const coordsEl = document.getElementById('coords');
+        const accuracyEl = document.getElementById('accuracy');
+        const addressEl = document.getElementById('address');
+        const mapEl = document.getElementById('map');
+
+        let watchId = null;
+        let map = null;
+        let marker = null;
+        let accuracyCircle = null; // משתנה למעגל חוסר הוודאות
+
+        // פונקציה לאתחול המפה עם הנעץ והמעגל
+        function initMap(lat, lng, accuracy) {
+            mapEl.style.display = 'block';
+            
+            // יצירת המפה
+            map = L.map('map').setView([lat, lng], 16);
+
+            // טעינת שכבת התמונות מ-OpenStreetMap
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+
+            // הוספת סמן מרכזי
+            marker = L.marker([lat, lng]).addTo(map);
+            
+            // הוספת המעגל שמייצג את רדיוס הדיוק
+            accuracyCircle = L.circle([lat, lng], {
+                color: '#e74c3c',      // מסגרת אדומה
+                fillColor: '#e74c3c',  // מילוי אדום
+                fillOpacity: 0.15,     // שקיפות כדי שיראו את המפה מתחת
+                radius: accuracy       // רדיוס בדיוק לפי כמות המטרים מהחיישן
+            }).addTo(map);
+        }
+
+        trackBtn.addEventListener('click', () => {
+            if (!("geolocation" in navigator)) {
+                statusEl.innerText = "הדפדפן אינו תומך בשירותי מיקום.";
+                return;
+            }
+
+            // עצירת המעקב אם הוא כבר רץ
+            if (watchId !== null) {
+                navigator.geolocation.clearWatch(watchId);
+                watchId = null;
+                trackBtn.innerText = "התחל מעקב מיקום";
+                statusEl.innerText = "מעקב הופסק.";
+                trackBtn.style.backgroundColor = "#3498db";
+                return;
+            }
+
+            statusEl.innerText = "מחפש לוויינים...";
+            trackBtn.innerText = "עצור מעקב";
+            trackBtn.style.backgroundColor = "#e74c3c";
+
+            // הגדרות לבקשת מיקום מדויק מהחומרה
+            const options = {
+                enableHighAccuracy: true,
+                timeout: 10000,
+                maximumAge: 0
+            };
+
+            // התחלת המעקב
+            watchId = navigator.geolocation.watchPosition(
+                async (position) => {
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+                    const accuracy = position.coords.accuracy;
+
+                    // עדכון טקסט בחלונית
+                    statusEl.innerText = "מיקום פעיל";
+                    coordsEl.innerText = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+                    accuracyEl.innerText = `± ${accuracy.toFixed(1)} מטרים`;
+
+                    // עדכון המפה בזמן אמת
+                    if (map === null) {
+                        initMap(lat, lng, accuracy);
+                    } else {
+                        // הזזת הנעץ והמרכוז
+                        marker.setLatLng([lat, lng]);
+                        map.panTo([lat, lng]);
+                        
+                        // עדכון המעגל (גם המיקום וגם גודל הרדיוס שאולי השתנה)
+                        accuracyCircle.setLatLng([lat, lng]);
+                        accuracyCircle.setRadius(accuracy);
+                    }
+
+                    // תרגום קואורדינטות לכתובת טקסטואלית רק כשהדיוק סביר
+                    if (accuracy <= 35) {
+                        const apiUrl = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lng}&localityLanguage=he`;
+                        try {
+                            const response = await fetch(apiUrl);
+                            const data = await response.json();
+                            addressEl.innerText = `${data.locality || ''}, ${data.city || data.principalSubdivision || ''}`;
+                        } catch (error) {
+                            addressEl.innerText = "שגיאה בתרגום הכתובת";
+                        }
+                    } else {
+                        addressEl.innerText = "ממתין לדיוק גבוה יותר...";
+                    }
+                },
+                (error) => {
+                    statusEl.innerText = `שגיאה: ${error.message}`;
+                },
+                options
+            );
+        });
+    </script>
+</body>
+</html>
