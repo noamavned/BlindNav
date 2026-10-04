@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BlindNav - Remote</title>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="inspect.css">
+</head>
+<body>
+
+    <nav class="navbar navbar-dark bg-dark shadow-sm" role="navigation" aria-label="Main menu" style="flex-shrink: 0;">
+        <div class="container-fluid">
+            <h1 class="navbar-brand mb-0 fs-5">
+                BlindNav - Remote Dashboard
+            </h1>
+            <span class="badge bg-success" id="connectionStatus" aria-live="polite">Live Tracking Active</span>
+        </div>
+    </nav>
+
+    <ul class="nav nav-tabs bg-white pt-2 px-2 shadow-sm" id="dashboardTabs" role="tablist" style="flex-shrink: 0;">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active fw-bold text-primary" id="map-tab" data-bs-toggle="tab" data-bs-target="#map-pane" type="button" role="tab" aria-controls="map-pane" aria-selected="true">
+                📍 Map View
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold text-dark" id="cam-tab" data-bs-toggle="tab" data-bs-target="#cam-pane" type="button" role="tab" aria-controls="cam-pane" aria-selected="false">
+                📷 Camera View
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link fw-bold text-dark" id="logs-tab" data-bs-toggle="tab" data-bs-target="#logs-pane" type="button" role="tab" aria-controls="logs-pane" aria-selected="false">
+                📋 Event Logs
+            </button>
+        </li>
+        
+        <li class="nav-item ms-auto mb-1 me-1" role="presentation">
+            <button class="btn btn-warning btn-sm fw-bold shadow-sm" id="btnAudioPing">
+                🔊 Send Audio Ping
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="dashboardTabsContent">
+        
+        <div class="tab-pane fade show active" id="map-pane" role="tabpanel" aria-labelledby="map-tab">
+            <div id="trackingMap"></div>
+        </div>
+
+        <div class="tab-pane fade" id="cam-pane" role="tabpanel" aria-labelledby="cam-tab">
+            <div class="cam-wrapper">
+                <span class="badge bg-danger position-absolute top-0 start-0 m-3 z-3 shadow">🔴 LIVE</span>
+                <img id="liveStream" src="https://picsum.photos/seed/blindnav/1024/768" alt="Live camera feed from glasses">
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="logs-pane" role="tabpanel" aria-labelledby="logs-tab">
+            <div class="logs-wrapper">
+                <h4 class="mb-3">System & Navigation Logs</h4>
+                <div class="list-group" id="logContainer">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script type="module" src="init-inspector.js"></script>
+</body>
+</html>

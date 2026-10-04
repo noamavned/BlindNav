@@ -1,0 +1,25 @@
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    margin: 0;
+    background-color: #f4f4f9;
+    color: #333;
+    
+}
+nav {
+    background: #222;
+    padding: 1rem;
+    h1 {
+        -webkit-user-select: none; 
+        -ms-user-select: none;
+        user-select: none;
+        cursor: default;
+    }
+}
+nav a {
+    color: white;
+    margin-right: 15px;
+    text-decoration: none;
+}
+main {
+    padding: 20px;
+}
