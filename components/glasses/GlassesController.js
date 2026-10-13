@@ -58,61 +58,10 @@ class AutocompleteField {
     _hide() { this.suggestions.style.display = 'none'; }
 }
 
-class RadarDisplay {
-    constructor(canvasId) {
-        this.canvas = document.getElementById(canvasId);
-        this.ctx = this.canvas ? this.canvas.getContext('2d') : null;
-        this.angle = 0;
-    }
-
-    start() {
-        if (!this.canvas || !this.ctx) return;
-        this._tick();
-    }
-
-    _tick() {
-        this._draw();
-        this.angle += 0.03;
-        requestAnimationFrame(() => this._tick());
-    }
-
-    _draw() {
-        const { ctx, canvas } = this;
-        const centerX = canvas.width / 2;
-        const centerY = canvas.height - 10;
-        const maxRadius = canvas.width / 2 - 20;
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.strokeStyle = '#00ff00';
-        ctx.lineWidth = 1;
-        for (let r = 35; r <= maxRadius; r += 35) {
-            ctx.beginPath();
-            ctx.arc(centerX, centerY, r, Math.PI, 0);
-            ctx.stroke();
-        }
-
-        for (let a = Math.PI; a <= Math.PI * 2; a += Math.PI / 4) {
-            ctx.beginPath();
-            ctx.moveTo(centerX, centerY);
-            ctx.lineTo(centerX + Math.cos(a) * maxRadius, centerY + Math.sin(a) * maxRadius);
-            ctx.stroke();
-        }
-
-        ctx.strokeStyle = 'rgba(0, 255, 0, 0.8)';
-        ctx.lineWidth = 3;
-        ctx.beginPath();
-        ctx.moveTo(centerX, centerY);
-        const sweepAngle = Math.PI + (Math.sin(this.angle) + 1) * (Math.PI / 2);
-        ctx.lineTo(centerX + Math.cos(sweepAngle) * maxRadius, centerY + Math.sin(sweepAngle) * maxRadius);
-        ctx.stroke();
-    }
-}
-
 export default class GlassesController {
     constructor(apiKey) {
         this.speech = new SpeechService();
         this.mapApi = new MapApiService(apiKey);
-        this.radar = new RadarDisplay('radarCanvas');
 
         this.map = null;
         this.startMarker = null;
@@ -126,7 +75,6 @@ export default class GlassesController {
     init() {
         this._initMap();
         this.locateUser();
-        this.radar.start();
         this._bindEvents();
 
         new AutocompleteField('startLocation', 'startSuggestions', this.mapApi, (coords) => this._placeMarker('start', coords));
@@ -271,3 +219,29 @@ export default class GlassesController {
         document.getElementById('routeSteps').innerHTML = stepsHtml;
     }
 }
+
+function updateDistance(distanceValue) {
+    const dataBox = document.getElementById('distanceSensorData');
+    const valueSpan = document.getElementById('distanceValue');
+    
+    valueSpan.textContent = distanceValue;
+
+    dataBox.classList.remove(
+        'border-danger', 'text-danger', 'bg-danger', 'bg-opacity-10',
+        'border-warning', 'text-warning', 'bg-warning', 'bg-opacity-10',
+        'border-success', 'text-success', 'bg-success', 'bg-opacity-10'
+    );
+
+    if (distanceValue < 20) {
+        dataBox.classList.add('border-danger', 'text-danger', 'bg-danger', 'bg-opacity-10');
+    } else if (distanceValue < 50) {
+        dataBox.classList.add('border-warning', 'text-warning', 'bg-warning', 'bg-opacity-10');
+    } else {
+        dataBox.classList.add('border-success', 'text-success', 'bg-success', 'bg-opacity-10');
+    }
+}
+
+setInterval(() => {
+    const randomDistance = Math.floor(Math.random() * 100);
+    updateDistance(randomDistance);
+}, 3000);
