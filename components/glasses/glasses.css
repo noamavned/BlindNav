@@ -38,7 +38,7 @@ html, body {
     height: 100%;
 }
 
-#radarContainer {
+#distanceSensorContainer {
     background-color: #021a02;
     border-radius: 0 0 8px 8px;
     position: relative;
@@ -47,6 +47,24 @@ html, body {
     align-items: center;
     justify-content: center;
     overflow: hidden;
+    min-height: 45%;
+}
+
+#distanceSensorData {
+    font-size: 1.75rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-align: center;
+    width: 160px;
+    height: 100px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 25, 0, 0.6);
+    border: 2px solid rgba(222, 226, 230, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    border-radius: 12px;
+    padding: 0;
 }
 
 .right-column {
