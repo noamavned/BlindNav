@@ -20,7 +20,7 @@
             <div class="col-12 col-lg-4 left-control-panel">
                 <div class="card shadow-sm h-100">
                     <div class="card-header bg-primary text-white font-weight-bold d-flex justify-content-between align-items-center py-2">
-                        <span>Camera &amp; Spatial Radar</span>
+                        <span>Camera &amp; Distance Sensor</span>
                         <button id="btnAnnounceStatus" class="btn btn-sm btn-light text-dark fw-bold py-0 px-2" aria-label="Announce sensor and camera status">🔊 Announce Status</button>
                     </div>
                     <div class="card-body p-0 position-relative cam-container d-flex align-items-center justify-content-center">
@@ -29,8 +29,10 @@
                             <span class="cam-warning-badge">⚠️ Obstacle nearby on the left (1.2 m)</span>
                         </div>
                     </div>
-                    <div id="radarContainer" class="card-footer p-0">
-                        <canvas id="radarCanvas" width="400" height="200"></canvas>
+                    <div id="distanceSensorContainer" class="card-footer p-0">
+                        <span id="distanceSensorData" class="text-white">
+                            <span id="distanceValue" class="fw-bold">55</span>cm
+                        </span>
                     </div>
                 </div>
             </div>
