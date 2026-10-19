@@ -1,0 +1,49 @@
+body {
+    background: linear-gradient(135deg, #0d6efd 0%, #0a3622 100%);
+    overflow: hidden;
+    padding-bottom: 1rem;
+}
+
+body:before {
+    background-image: radial-gradient(circle at center, rgba(255,255,255,0.1) 1px, transparent 1px);
+    opacity: 0.5;
+}
+
+.login-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 65px);
+    padding: 16px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 360px;
+}
+
+input:not([type="submit"]), #togglePassword {
+    background-color: #f8f9fa;
+    border: 2px solid #6f7071d5;
+    padding: 0.375rem 0.75rem;
+    transition: border-color 0.3s ease, box-shadow 0.3s;
+}
+
+.input-group > input:not([type="submit"]) {
+    border-right: none;
+    border-radius: 0.25rem 0 0 0.25rem; 
+}
+
+#togglePassword {
+    cursor: default;
+    border-left: none; 
+    border-radius: 0 0.25rem 0.25rem 0;
+}
+
+input:not([type="submit"]):focus {
+    border-color: none;
+    outline: none;
+    box-shadow: none;
+    border-color: #6f7071d5;
+    background-color: #f8f9fa;
+}
