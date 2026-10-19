@@ -8,7 +8,7 @@ const cookies = new cookieManager();
 export default class FirebaseService {
     constructor() {
         const firebaseConfig = {
-            apiKey: "AIzaSyB-Wl8u_M3w7v9oGN8DlLJ-suSOmNy83U0",
+            apiKey: "key",
             authDomain: "blindnav-01.firebaseapp.com",
             databaseURL: "https://blindnav-01-default-rtdb.europe-west1.firebasedatabase.app",
             projectId: "blindnav-01",
